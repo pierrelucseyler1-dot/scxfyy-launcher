@@ -1,0 +1,4 @@
+{ "schemaVersion": 1, "id": "scxfyy-client", "version": "${version}", "name": "scxfyy client",
+  "description": "scxfyy in-game menu: zoom, freelook, HUD and more. Right Shift opens it.", "authors": ["scxfyy"],
+  "environment": "client", "entrypoints": { "client": ["com.scxfyy.client.Scx"] }, "mixins": ["scxfyy.mixins.json"],
+  "depends": { "fabricloader": ">=0.16.0", "minecraft": "~1.21.4", "java": ">=21", "fabric-api": "*" } }

@@ -1,0 +1,91 @@
+{
+  "name": "scxfyy-launcher",
+  "version": "3.0.0",
+  "description": "scxfyy Minecraft launcher",
+  "author": "scxfyy",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dist": "node tools/prebuild.js && electron-builder --win --x64"
+  },
+  "dependencies": {
+    "minecraft-launcher-core": "^3.18.2",
+    "msmc": "^5.0.5"
+  },
+  "devDependencies": {
+    "electron": "^31.0.0",
+    "electron-builder": "^25.1.8"
+  },
+  "build": {
+    "appId": "com.scxfyy.launcher",
+    "productName": "scxfyy launcher",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "index.html",
+      "style.css",
+      "sunset.jpg",
+      "themes/**",
+      "assets/**",
+      "lib/**",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "mod/src",
+        "to": "mod/src"
+      },
+      {
+        "from": "mod/build.gradle",
+        "to": "mod/build.gradle"
+      },
+      {
+        "from": "mod/gradle.properties",
+        "to": "mod/gradle.properties"
+      },
+      {
+        "from": "mod/settings.gradle",
+        "to": "mod/settings.gradle"
+      },
+      {
+        "from": "build-mod.bat",
+        "to": "build-mod.bat"
+      },
+      {
+        "from": "prebuilt",
+        "to": "prebuilt"
+      }
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "assets/icon.ico"
+    },
+    "nsis": {
+      "oneClick": true,
+      "perMachine": false,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "scxfyy launcher",
+      "artifactName": "scxfyy-launcher-setup.exe"
+    },
+    "portable": {
+      "artifactName": "scxfyy-launcher.exe"
+    }
+  }
+}

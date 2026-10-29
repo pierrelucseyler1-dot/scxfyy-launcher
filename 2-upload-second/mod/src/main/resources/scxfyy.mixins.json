@@ -1,0 +1,4 @@
+{ "required": false, "package": "com.scxfyy.client.mixin", "compatibilityLevel": "JAVA_21",
+  "client": ["ClientMixin", "ScreenMixin", "EntityMixin", "CameraMixin", "HudMixin", "BossBarMixin", "ChatMixin",
+             "ParticleMixin", "HeldItemMixin", "FireMixin", "WorldMixin", "ListMixin", "SwingMixin", "FogMixin", "HandledAccessor", "SkyIntMixin", "SkyVecMixin", "StarMixin", "FogColorMixin", "BedrockMixin"],
+  "injectors": { "defaultRequire": 0 } }

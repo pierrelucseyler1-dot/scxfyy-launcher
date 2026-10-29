@@ -1,0 +1,116 @@
+<!doctype html><meta charset="utf-8"><title>scxfyy launcher</title><link rel="stylesheet" href="style.css">
+<script src="https://cdn.jsdelivr.net/npm/skinview3d@3.1.0/bundles/skinview3d.bundle.js"></script>
+<header id="top"><div class="brand"><div class="logo">S</div><b>scxfyy Launcher</b><span class="badge">Happy Halloween</span></div>
+<div class="right"><button class="btn sec sm" id="custom" style="margin-right:14px">Customize</button><div class="acct" id="acctTop"><canvas class="face" id="face1" width="8" height="8"></canvas><div><b id="uname">Sign in</b><small>Minecraft account</small></div></div>
+<button class="wc" data-w="min">&#8211;</button><button class="wc" data-w="max">&#9633;</button><button class="wc" data-w="close">&#10005;</button></div></header>
+<div id="body"><div class="dots" id="dots"></div>
+<aside><button class="nav on" data-p="home"><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8v10H3z"/></svg>Home</button>
+<button class="nav" data-p="locker"><svg viewBox="0 0 24 24"><path d="M8 3L3 7l3 3 2-1v12h8V9l2 1 3-3-5-4a4 4 0 01-8 0z"/></svg>Locker</button>
+<button class="nav" data-p="store"><svg viewBox="0 0 24 24"><path d="M4 9h16l-1-5H5zM5 9v11h14V9M9 20v-6h6v6"/></svg>Store</button>
+<div class="sp"></div><button class="nav" id="joinS">Join StrongMC &rarr;</button>
+<div class="acc" id="acctSide"><canvas class="face" id="face2" width="8" height="8"></canvas><div><b>Accounts</b><small id="uname2">Not signed in</small></div></div></aside>
+<main>
+<section id="home" class="on"><div class="hd"><div><h1>Your instances</h1><div class="sub" id="count"></div></div><div style="display:flex;gap:10px"><button class="btn" id="newI">+ New instance</button></div></div>
+<div class="grid" id="cards"></div><pre id="log" hidden></pre></section>
+<section id="locker"><h1>Locker</h1><div class="sub">Preview and change your skin</div><div class="two"><div>
+<label>Upload a skin (PNG)</label><div class="row"><input id="sn" placeholder="Name"><select id="svar"><option value="classic">Classic (Steve)</option><option value="slim">Slim (Alex)</option></select></div>
+<input type="file" id="sf" accept="image/png" style="margin-top:8px"><div style="margin-top:12px"><button class="btn" id="sa">Save and wear</button> <span id="sm" class="note"></span></div>
+<h2>Your skins</h2><div id="sl"></div></div><canvas class="view" id="sv" width="220" height="320"></canvas></div></section>
+<section id="store"><h1>Store</h1><div class="sub">Download mods straight into the instance you pick</div>
+<div class="row"><div><label>Install into</label><select id="sinst"></select></div><div><label>Source</label><select id="ssrc"><option value="mr">Modrinth</option><option value="cf">CurseForge</option></select></div></div>
+<p class="note" id="sinfo"></p>
+<h2>Extras</h2><p class="note">Features that need their own mod. Pick an instance above, then install.</p><div id="extras"></div>
+<input id="sq" placeholder="Search mods (type, or press Enter)" autocomplete="off" style="margin-top:4px">
+<div id="sout"></div><h2>Installed in this instance</h2><div id="sinstd"></div></section>
+
+</main></div>
+<div id="tmodal"><div class="card"><h2 style="margin-top:0">Customize</h2><label>Theme (color and space background)</label><div class="sw" id="themes"></div>
+<h2>Account</h2><button class="btn sec" id="signout">Sign out of Microsoft</button><div style="margin-top:20px"><button class="btn blk" id="tclose">Done</button></div></div></div>
+<div id="cmodal"><div class="card"><h2 style="margin-top:0">Are you sure?</h2><p id="cm-t"></p><div class="row" style="margin-top:18px"><button class="btn sec" id="cm-no">Cancel</button><button class="btn" id="cm-ok" style="background:#e5484d;border-bottom-color:#9b2c30">Delete</button></div></div></div><div id="toast"></div>
+<div id="modal"><div class="card"><h2 style="margin-top:0" id="mt">New instance</h2><label>Name</label><input id="mn"><label>Minecraft version</label><select id="mv"></select>
+<label><input type="checkbox" id="mf" checked>Fabric (needed for mods)</label>
+<div class="row" style="margin-top:18px"><button class="btn sec" id="mc">Cancel</button><button class="btn" id="ms">Save</button></div></div></div>
+<script>
+const $=s=>document.querySelector(s),$$=s=>document.querySelectorAll(s);let cfg={},versions=[],editing=null;
+let tT;function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(tT);tT=setTimeout(()=>t.classList.remove('on'),4500)}
+function ask(msg,ok){$('#cm-t').textContent=msg;$('#cmodal').classList.add('on');$('#cm-no').onclick=()=>$('#cmodal').classList.remove('on');$('#cm-ok').onclick=()=>{$('#cmodal').classList.remove('on');ok()}}
+const THEMES={sunset:{n:'Sunset',o:'#f58220',od:'#b85f12',t:'#fff',bg:'sunset.jpg',sw:'linear-gradient(#7a1f5c,#ff9a2e)'},
+ blue:{n:'Blue',o:'#3b82f6',od:'#1e40af',t:'#fff',bg:'themes/space-blue.jpg',sw:'#2563eb'},red:{n:'Red',o:'#ef4444',od:'#991b1b',t:'#fff',bg:'themes/space-red.jpg',sw:'#dc2626'},
+ purple:{n:'Purple',o:'#a855f7',od:'#6b21a8',t:'#fff',bg:'themes/space-purple.jpg',sw:'#9333ea'},black:{n:'Black',o:'#cbd5e1',od:'#64748b',t:'#0b1220',bg:'themes/space-black.jpg',sw:'#1f2937'},
+ yellow:{n:'Yellow',o:'#facc15',od:'#a16207',t:'#1a1208',bg:'themes/space-yellow.jpg',sw:'#eab308'},green:{n:'Green',o:'#22c55e',od:'#166534',t:'#fff',bg:'themes/space-green.jpg',sw:'#16a34a'},
+ orange:{n:'Orange',o:'#f58220',od:'#b85f12',t:'#fff',bg:'themes/space-orange.jpg',sw:'#ea580c'}};
+function applyTheme(k){const key=THEMES[k]?k:'sunset',t=THEMES[key],r=document.documentElement.style;r.setProperty('--o',t.o);r.setProperty('--od',t.od);r.setProperty('--btn-t',t.t);r.setProperty('--bg',`url("${t.bg}")`);
+ $$('#themes button').forEach(b=>b.classList.toggle('on',b.dataset.k===key))}
+function setAcct(n){$('#uname').textContent=n;$('#uname2').textContent=n}
+Object.entries(THEMES).forEach(([k,t])=>{const b=document.createElement('button');b.dataset.k=k;b.title=t.n;b.style.background=t.sw;b.onclick=()=>{applyTheme(k);api.setCfg({theme:k})};$('#themes').append(b)});
+$('#custom').onclick=()=>$('#tmodal').classList.add('on');$('#tclose').onclick=()=>$('#tmodal').classList.remove('on');
+const ico={folder:'<path d="M3 6h7l2 2h9v11H3z"/>',gear:'<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2"/>',trash:'<path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/>'};
+const svg=n=>`<svg viewBox="0 0 24 24">${ico[n]}</svg>`;
+$$('[data-w]').forEach(b=>b.onclick=()=>api.win(b.dataset.w));
+const go=p=>{$$('.nav').forEach(n=>n.classList.toggle('on',n.dataset.p===p));$$('section').forEach(s=>s.classList.toggle('on',s.id===p));if(p==='store'){sInfo();sSearch();sInstalled()}};
+$$('.nav[data-p]').forEach(n=>n.onclick=()=>go(n.dataset.p));
+for(let i=0;i<24;i++){const s=document.createElement('span'),z=2+Math.random()*4;s.style.cssText=`left:${Math.random()*100}%;top:${Math.random()*100}%;width:${z}px;height:${z}px;background:${Math.random()<.7?'#f58220':'#5b4bd6'};opacity:.45;animation-delay:-${Math.random()*9}s`;$('#dots').append(s)}
+// account + skin
+const viewer=window.skinview3d?new skinview3d.SkinViewer({canvas:$('#sv'),width:220,height:320}):null;
+if(viewer){viewer.animation=new skinview3d.WalkingAnimation();viewer.autoRotate=true}
+const preview=(d,v)=>viewer&&viewer.loadSkin(d,{model:v==='slim'?'slim':'default'});
+function face(data){['face1','face2'].forEach(id=>{const c=$('#'+id),x=c.getContext('2d');x.imageSmoothingEnabled=false;const im=new Image();im.onload=()=>{x.clearRect(0,0,8,8);x.drawImage(im,8,8,8,8,0,0,8,8);x.drawImage(im,40,8,8,8,0,0,8,8)};im.src=data})}
+async function refreshSkin(){const s=await api.skin.current();if(s.data){preview(s.data,s.variant);face(s.data)}}
+async function login(){const r=await api.login();if(r.error){toast('Sign-in failed: '+r.error);return}setAcct(r.name);if(r.warn)toast(r.warn);refreshSkin()}
+$('#acctTop').onclick=login;$('#acctSide').onclick=login;
+$('#signout').onclick=async()=>{await api.logout();$('#uname').textContent='Sign in';$('#uname2').textContent='Not signed in';['face1','face2'].forEach(id=>$('#'+id).getContext('2d').clearRect(0,0,8,8));toast('Signed out.')};
+$('#sf').onchange=()=>{const f=$('#sf').files[0];if(!f)return;const r=new FileReader();r.onload=()=>preview(r.result,$('#svar').value);r.readAsDataURL(f)};$('#svar').onchange=$('#sf').onchange;
+async function library(){const l=await api.skin.list();$('#sl').innerHTML=l.length?'':'<p class="note">No saved skins yet.</p>';
+ l.forEach(s=>{const c=document.createElement('div');c.className='rc';c.innerHTML=`<img class="skin" src="${s.data}"><div><b>${s.name}</b><br><small>${s.variant}</small></div><button class="btn sec sm">Preview</button><button class="btn sm">Wear</button><button class="btn sec sm">Delete</button>`;
+  const [p,w,x]=c.querySelectorAll('button');p.onclick=()=>preview(s.data,s.variant);w.onclick=async()=>{w.textContent='...';const r=await api.skin.apply(s.file);w.textContent=r.error?'Failed':'Worn';w.title=r.error||''};
+  x.onclick=async()=>{await api.skin.del(s.file);library()};$('#sl').append(c)})}
+$('#sa').onclick=async()=>{const f=$('#sf').files[0];if(!f){$('#sm').textContent='Choose a PNG first.';return}
+ const r=await api.skin.add($('#sn').value||f.name.replace('.png',''),$('#svar').value,new Uint8Array(await f.arrayBuffer()));$('#sm').textContent=r.error||'Done. Rejoin the world to see it.';if(!r.error)library()};
+// instances
+function home(){const l=cfg.instances;$('#count').textContent=l.length+(l.length===1?' instance':' instances');$('#cards').innerHTML='';if(!l.length)$('#cards').innerHTML='<p class="note">No instances yet. Click + New instance.</p>';
+ $('#sinst').innerHTML=l.map(i=>`<option value="${i.id}">${i.name} (${i.version})</option>`).join('');
+ l.forEach(i=>{const c=document.createElement('div');c.className='card';
+  c.innerHTML=`<div class="ih"><div class="ic">${svg('folder')}</div><div><b></b><div class="st">&#9632; <span>Ready to play</span></div></div><button class="ib" title="Open folder">${svg('folder')}</button><button class="ib" title="Edit">${svg('gear')}</button><button class="ib red" title="Delete">${svg('trash')}</button></div>
+  <div class="tags"><span class="tag">${i.fabric?'Fabric':'Vanilla'}</span><span class="tag">Minecraft ${i.version}</span></div><button class="btn sec blk">Content</button><button class="btn blk">Play</button>`;
+  c.querySelector('b').textContent=i.name;const [of,ed,del]=c.querySelectorAll('.ib'),[ct,pl]=c.querySelectorAll('.blk'),st=c.querySelector('.st span');c.dataset.id=i.id;
+  of.onclick=()=>api.folder(i.id);ed.onclick=()=>openModal(i);
+  del.onclick=()=>ask(`Delete "${i.name}" and everything in it (mods, worlds, settings)?`,async()=>{cfg=await api.delInst(i.id);home()});
+  ct.onclick=()=>{$('#sinst').value=i.id;go('store')};
+  pl.onclick=()=>play(i.id);
+  $('#cards').append(c)})}
+async function play(id,srv){const st=document.querySelector(`.card[data-id="${id}"] .st span`);if(st)st.textContent='Starting...';$('#log').hidden=false;$('#log').textContent='';cfg.last=id;api.setCfg({last:id});const r=await api.launch(id,srv);if(r.error){if(st)st.textContent='Ready to play';$('#log').textContent+=r.error+'\n'}else if(st)st.textContent='Playing'}
+$('#joinS').onclick=()=>{const i=cfg.instances.find(x=>x.id===cfg.last)||cfg.instances[0];if(!i)return;go('home');play(i.id,'strongmc.net')};
+api.onClosed(id=>{const c=document.querySelector(`.card[data-id="${id}"] .st span`);if(c)c.textContent='Ready to play'});
+api.onLog(m=>{const l=$('#log');l.textContent+=m+'\n';l.scrollTop=l.scrollHeight});
+function openModal(i){editing=i;$('#mt').textContent=i?'Edit instance':'New instance';$('#mn').value=i?i.name:'';$('#mv').value=i?i.version:versions[versions.length-1];$('#mf').checked=i?i.fabric:true;$('#modal').classList.add('on')}
+$('#newI').onclick=()=>openModal(null);
+$('#ms').onclick=async()=>{const n=$('#mn').value.trim();if(!n)return;cfg=await api.saveInst({id:editing&&editing.id,name:n,version:$('#mv').value,fabric:$('#mf').checked});$('#modal').classList.remove('on');home()};
+// store
+let sTimer,sTok=0;
+const EXTRAS=[{n:'Item physics',d:'Dropped items lie flat on the ground.',slug:'itemphysic-lite'},{n:'Dynamic lights',d:'Held torches and glowstone light up nearby blocks.',slug:'lambdynamiclights'},
+ {n:'3D skins',d:'Skin overlay layers get real depth.',slug:'skinlayers3d'},{n:'Glint color',d:'Change the enchantment shimmer color.',q:'glint color'},{n:'Hit tint',d:'Change the hurt flash color on entities.',q:'hit color'},
+ {n:'Block outline',d:'Change the color and thickness of the targeted block outline.',q:'block outline'},{n:'Color saturation',d:'Adjust how vivid the world colors are.',q:'saturation'}];
+function buildExtras(){const box=$('#extras');box.innerHTML='';EXTRAS.forEach(x=>{const d=document.createElement('div');d.className='rc';d.innerHTML='<div><b></b><br><small></small></div><button class="btn sm"></button>';
+ d.querySelector('b').textContent=x.n;d.querySelector('small').textContent=x.d;const b=d.querySelector('button');b.textContent=x.slug?'Install':'Find mods';
+ b.onclick=async()=>{const i=curInst();if(!i){toast('Create an instance first.');return}
+  if(x.slug){b.textContent='...';const r=await api.install('mr',x.slug,i.id);b.textContent=r.error?'Failed':'Installed';if(r.error)toast(r.error);else sInstalled()}
+  else{$('#ssrc').value='mr';$('#sq').value=x.q;sSearch()}};box.append(d)})}
+const curInst=()=>cfg.instances.find(x=>x.id===$('#sinst').value);
+function sInfo(){const i=curInst();$('#sinfo').textContent=i?(i.fabric?`Fabric mods for Minecraft ${i.version}. They install into "${i.name}".`:`"${i.name}" is not a Fabric instance, so mods will not load. Edit it on Home and tick Fabric.`):'Create an instance on Home first.'}
+async function sSearch(){const out=$('#sout'),i=curInst(),src=$('#ssrc').value,tok=++sTok;if(!i){out.textContent='';return}
+ if(src==='cf'&&!cfg.cfKey){out.innerHTML='<p class="note">CurseForge needs a free API key (get one at console.curseforge.com).</p><div class="row"><input id="cfk" placeholder="Paste your API key"><button class="btn sm" id="cfs" style="flex:0">Save</button></div>';$('#cfs').onclick=async()=>{cfg=await api.setCfg({cfKey:$('#cfk').value.trim()});sSearch()};return}
+ out.innerHTML='<p class="note">Searching...</p>';const r=await api.search(src,$('#sq').value.trim(),i.version);if(tok!==sTok)return;
+ if(r.error){out.textContent=r.error;return}out.innerHTML='';if(!r.length){out.innerHTML=`<p class="note">No Fabric mods found for ${i.version}.</p>`;return}
+ r.forEach(m=>{const d=document.createElement('div');d.className='rc';d.innerHTML='<img><div><b></b><br><small></small></div><button class="btn sm">Install</button>';
+  d.querySelector('img').src=m.icon||'';d.querySelector('b').textContent=m.title;d.querySelector('small').textContent=m.desc;
+  const b=d.querySelector('button');b.onclick=async()=>{b.textContent='...';const x=await api.install(src,m.id,i.id);b.textContent=x.error?'Failed':'Installed';if(x.error)toast(x.error);else sInstalled()};out.append(d)})}
+async function sInstalled(){const i=curInst(),box=$('#sinstd');if(!i){box.textContent='';return}const l=await api.modsList(i.id);box.innerHTML=l.length?'':'<p class="note">No mods installed yet.</p>';
+ l.forEach(f=>{const d=document.createElement('div');d.className='rc';d.innerHTML='<div><b></b></div><button class="btn sec sm">Remove</button>';d.querySelector('b').textContent=f;
+  d.querySelector('button').onclick=async()=>{await api.modsDel(i.id,f);sInstalled()};box.append(d)})}
+$('#sq').oninput=()=>{clearTimeout(sTimer);sTimer=setTimeout(sSearch,350)};
+$('#sq').onkeydown=e=>{if(e.key==='Enter'){clearTimeout(sTimer);sSearch()}};
+$('#sinst').onchange=()=>{sInfo();sSearch();sInstalled()};$('#ssrc').onchange=sSearch;
+(async()=>{cfg=await api.getCfg();versions=await api.versions();$('#mv').innerHTML=versions.map(v=>`<option>${v}</option>`).join('');
+ applyTheme(cfg.theme||'sunset');home();buildExtras();library();refreshSkin()})();
+(async()=>{const cn=await api.cachedAccount();if(cn)setAcct(cn);const r=await api.autoLogin();if(r.name){setAcct(r.name);refreshSkin()}else if(r.error)toast(r.error)})();
+</script>
